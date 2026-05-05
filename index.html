@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat App</title>
+  <style>
+    body { font-family: Arial; text-align: center; }
+    #chat { height: 300px; overflow-y: scroll; border: 1px solid black; margin: 10px; padding: 10px; }
+    input { padding: 10px; margin: 5px; }
+  </style>
+</head>
+<body>
+
+<h2>Live Chat</h2>
+
+<div id="login">
+  <input id="username" placeholder="Enter username">
+  <button onclick="joinChat()">Join</button>
+</div>
+
+<div id="chatUI" style="display:none;">
+  <div id="chat"></div>
+  <input id="message" placeholder="Type message">
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+  // 🔥 PASTE YOUR CONFIG HERE
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtJCmbRWM-kjCXOd11h0LPVhluENTlND0",
+    authDomain: "eternal-chat-92d58.firebaseapp.com",
+    databaseURL: "https://eternal-chat-92d58-default-rtdb.firebaseio.com/",
+    projectId: "eternal-chat-92d58",
+    storageBucket: "eternal-chat-92d58.firebasestorage.app",
+    messagingSenderId: "21836659124",
+    appId: "1:21836659124:web:0494b5721d5dfee0021ae1"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  let username = "";
+
+  function joinChat() {
+    username = document.getElementById("username").value;
+    if (!username) return alert("Enter username");
+
+    document.getElementById("login").style.display = "none";
+    document.getElementById("chatUI").style.display = "block";
+
+    loadMessages();
+  }
+
+  function sendMessage() {
+    const msg = document.getElementById("message").value;
+
+    db.ref("messages").push({
+      user: username,
+      text: msg
+    });
+
+    document.getElementById("message").value = "";
+  }
+
+  function loadMessages() {
+    db.ref("messages").on("child_added", snapshot => {
+      const data = snapshot.val();
+      const chat = document.getElementById("chat");
+
+      chat.innerHTML += `<p><b>${data.user}:</b> ${data.text}</p>`;
+      chat.scrollTop = chat.scrollHeight;
+    });
+  }
+</script>
+
+</body>
+</html>
